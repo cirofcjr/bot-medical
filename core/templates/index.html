@@ -5,24 +5,55 @@
     <title>Title</title>
 </head>
 <body>
-    Medicos
-    <ul>
+Medicos
+<ul>
 
     {% for medico in medicos %}
 
 
-       <li>{{ medico.nome }}</li>
+    <li>{{ medico.nome }}</li>
     {% endfor %}
-        </ul>
+</ul>
 
-     Especialidades
-    <ul>
+Especialidades
+<ul>
 
     {% for especialidade in especialidades %}
 
 
-       <li>{{ especialidade.nome }}</li>
+    <li>{{ especialidade.nome }}</li>
     {% endfor %}
-        </ul>
+</ul>
+
+Clientes
+<ul>
+
+    {% for cliente in clientes %}
+
+
+    <li>{{ cliente.nome }}</li>
+    {% endfor %}
+</ul>
+
+Consultas
+<ul>
+
+    {% for consulta in consultas %}
+
+
+    <li>{{ consulta.nome }}</li>
+    {% endfor %}
+</ul>
+
+Convenios
+<ul>
+
+    {% for convenio in convenios %}
+
+
+    <li>{{ convenio.nome }}</li>
+    {% endfor %}
+</ul>
+
 </body>
 </html>
