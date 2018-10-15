@@ -55,5 +55,18 @@ Convenios
     {% endfor %}
 </ul>
 
+Turnos
+<ul>
+
+    {% for turno in turnos %}
+    {% for escala in turno.tempo.all %}
+    <b>Turno {{turno.id}}</b>
+    <li>{{escala.inicio}}  às   {{escala.fim}}</li>
+
+
+    {% endfor %}
+    {% endfor %}
+</ul>
+
 </body>
 </html>

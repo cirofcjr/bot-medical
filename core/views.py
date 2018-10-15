@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Medico, Especialidade, Cliente, Consulta, Convenio
+from .models import Medico, Especialidade, Cliente, Consulta, Convenio, Turno
 
 
 # Create your views here.
@@ -11,6 +11,7 @@ def index(request):
         "cliente": Cliente.objects.all(),
         "consulta": Consulta.objects.all(),
         "convenio": Convenio.objects.all(),
+        "turnos": Turno.objects.all(),
 
     }
     return render(request, template_name, context)

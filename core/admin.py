@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Especialidade, Medico, Cliente, Consulta, Convenio
+from .models import Especialidade, Medico, Cliente, Consulta, Convenio, Turno
 
 
 # Register your models here.
@@ -19,6 +19,15 @@ class MedicoAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
             'fields': ('nome', 'crm', 'especialidade')
+        }),
+    )
+
+@admin.register(Turno)
+class MedicoAdmin(admin.ModelAdmin):
+    list_display = ('inicio', 'fim',)
+    fieldsets = (
+        (None, {
+            'fields': ('inicio', 'fim', )
         }),
     )
 
