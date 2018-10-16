@@ -59,12 +59,14 @@ Turnos
 <ul>
 
     {% for turno in turnos %}
-    {% for escala in turno.tempo.all %}
     <b>Turno {{turno.id}}</b>
-    <li>{{escala.inicio}}  às   {{escala.fim}}</li>
+
+        {% for escala in turno.tempo.all %}
+
+        <li>{{escala.inicio }}  às   {{escala.fim }} </li>
 
 
-    {% endfor %}
+        {% endfor %}
     {% endfor %}
 </ul>
 
