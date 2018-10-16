@@ -25,22 +25,26 @@ class Turno(models.Model):
 
         qtd_de_escalas = qtd_de_horas / tempo_consulta
 
-        qtd_de_horas = qtd_de_horas.total_seconds() / 60
 
         inicio = horario1
         fim = horario1 + tempo_consulta
         super(Turno, self).save(*args, **kwargs)
-
         for i in range(int(qtd_de_escalas)):
-            escala = EscalaTempo.objects.create(inicio=str(inicio), fim=str(fim), dia=self)
-            inicio = fim
-            fim = inicio + tempo_consulta
+            if self.tempo.filter(inicio=str(inicio)).count() == 0:
+                escala = EscalaTempo.objects.create(inicio=str(inicio), fim=str(fim), dia=self)
+                inicio = fim
+                fim = inicio + tempo_consulta
+            else:
+                inicio = fim
+                fim = inicio + tempo_consulta
+
 
 
 class EscalaTempo(models.Model):
     inicio = models.TimeField()
     fim = models.TimeField()
     dia = models.ForeignKey(Turno, related_name="tempo", on_delete=models.CASCADE)
+    disponivel = models.BooleanField(default=True)
 
 
 class Medico(models.Model):
