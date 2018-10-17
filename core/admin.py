@@ -57,6 +57,6 @@ class ConsultaAdmin(admin.ModelAdmin):
     list_display = ('convenio', 'cliente', 'medico')
     fieldsets = (
         (None, {
-            'fields': ('convenio', 'cliente', 'medico')
+            'fields': ('convenio', 'cliente', 'medico','data','inicio')
         }),
     )
