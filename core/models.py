@@ -9,8 +9,10 @@ class Especialidade(models.Model):
     def __str__(self):
         return self.nome
 
+
 def convert(horas, minutos, segundos):
-        return datetime.timedelta(hours=horas, minutes=minutos, seconds=segundos)
+    return datetime.timedelta(hours=horas, minutes=minutos, seconds=segundos)
+
 
 class Turno(models.Model):
     inicio = models.TimeField()
@@ -25,7 +27,6 @@ class Turno(models.Model):
 
         qtd_de_escalas = qtd_de_horas / tempo_consulta
 
-
         inicio = horario1
         fim = horario1 + tempo_consulta
         super(Turno, self).save(*args, **kwargs)
@@ -37,7 +38,6 @@ class Turno(models.Model):
             else:
                 inicio = fim
                 fim = inicio + tempo_consulta
-
 
 
 class EscalaTempo(models.Model):
@@ -80,6 +80,23 @@ class Consulta(models.Model):
     medico = models.ForeignKey(Medico, on_delete=models.CASCADE)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     convenio = models.ForeignKey(Convenio, on_delete=models.CASCADE)
+    data = models.DateField(null=True)
+    inicio = models.TimeField(null=True)
+    fim = models.TimeField(null=True)
 
     def __str__(self):
         return self.medico.nome + " " + self.cliente.nome
+
+    def save(self, *args, **kwargs):
+        data_informada = self.medico.diaagenda_set.filter(data=self.data)
+        if data_informada.count() != 0:
+            turno = data_informada[0].turnos.filter(tempo__inicio=self.inicio,
+                                                    tempo__disponivel=True)
+            if turno.count() == 1:
+                escala = turno[0].tempo.filter(inicio=self.inicio)
+                escala = escala[0]
+                escala.disponivel = False
+                escala.save()
+                self.fim = escala.fim
+
+                super(Consulta, self).save(*args, **kwargs)
