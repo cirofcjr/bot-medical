@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Título da Página</title>
 </head>
 <body>
 Medicos
@@ -35,13 +35,13 @@ Clientes
     {% endfor %}
 </ul>
 
-Consultas
+Consultas agendadas
 <ul>
 
     {% for consulta in consultas %}
 
 
-    <li>{{ consulta.nome }}</li>
+    <li>{{ consulta.data }} às {{ consulta.inicio }} Dr(a). {{ consulta.medico }} - {{ consulta.cliente }}</li>
     {% endfor %}
 </ul>
 
