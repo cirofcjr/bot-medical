@@ -8,7 +8,7 @@ class EspecialidadeAdmin(admin.ModelAdmin):
     list_display = ('nome',)
     fieldsets = (
         (None, {
-            'fields': ('nome',)
+            'fields': ('nome','descricao',)
         }),
     )
 
