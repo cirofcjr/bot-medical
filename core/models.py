@@ -1,5 +1,6 @@
 from django.db import models
 import datetime
+from django.core.exceptions import ValidationError
 
 
 # Create your models here.
@@ -83,12 +84,29 @@ class Consulta(models.Model):
     convenio = models.ForeignKey(Convenio, on_delete=models.CASCADE)
     data = models.DateField(null=True)
     inicio = models.TimeField(null=True)
-    fim = models.TimeField(null=True)
+    fim = models.TimeField(null=True, blank=True)
 
     def __str__(self):
         return self.medico.nome + " " + self.cliente.nome
 
+    def clean(self):
+        super(Consulta, self).clean()
+        data_informada = self.medico.diaagenda_set.filter(data=self.data)
+        if data_informada.count() == 0:
+            raise ValidationError('O medico escolhido não tem agenda disponivel para esse dia')
+        else:
+            turnos= data_informada[0].turnos.filter(tempo__inicio=self.inicio,
+                                                    tempo__disponivel=True)
+            print(turnos)
+            if turnos.count() == 0:
+                raise ValidationError('O horário não está disponivel')
+
+        # if self.nome == '':
+        #     raise ValidationError('Proibido criar disciplina sem nome')
+
     def save(self, *args, **kwargs):
+        self.full_clean()
+
         data_informada = self.medico.diaagenda_set.filter(data=self.data)
         if data_informada.count() != 0:
             turno = data_informada[0].turnos.filter(tempo__inicio=self.inicio,
