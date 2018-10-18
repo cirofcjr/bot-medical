@@ -5,10 +5,10 @@ from .models import Especialidade, Medico, Cliente, Consulta, Convenio, Turno, E
 # Register your models here.
 @admin.register(Especialidade)
 class EspecialidadeAdmin(admin.ModelAdmin):
-    list_display = ('nome',)
+    list_display = ('nome', 'descricao',)
     fieldsets = (
         (None, {
-            'fields': ('nome',)
+            'fields': ('nome', 'descricao',)
         }),
     )
 
@@ -24,10 +24,10 @@ class MedicoAdmin(admin.ModelAdmin):
 
 @admin.register(Turno)
 class MedicoAdmin(admin.ModelAdmin):
-    list_display = ('inicio', 'fim',)
+    list_display = ('nome', 'inicio', 'fim',)
     fieldsets = (
         (None, {
-            'fields': ('inicio', 'fim', )
+            'fields': ('nome', 'inicio', 'fim', )
         }),
     )
 
@@ -43,10 +43,10 @@ class ConvenioAdmin(admin.ModelAdmin):
 
 @admin.register(EscalaTempo)
 class EscalaTempoAdmin(admin.ModelAdmin):
-    list_display = ('inicio','fim','dia')
+    list_display = ('inicio','fim','turno')
     fieldsets = (
         (None, {
-            'fields': ('inicio','fim','dia')
+            'fields': ('inicio','fim','turno')
         }),
     )
 
@@ -60,26 +60,26 @@ class DiaAgendaAdmin(admin.ModelAdmin):
     inlines = (TurnosInline,)
     fieldsets = (
         (None, {
-            'fields': ('data','medico')
+            'fields': ('data', 'medico')
         }),
     )
 
 
 @admin.register(Cliente)
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ('nome',)
+    list_display = ('nome', 'sexo', 'data_nascimento', 'cpf', 'telefone',)
     fieldsets = (
         (None, {
-            'fields': ('nome',)
+            'fields': ('nome', 'sexo', 'data_nascimento', 'cpf', 'telefone',)
         }),
     )
 
 
 @admin.register(Consulta)
 class ConsultaAdmin(admin.ModelAdmin):
-    list_display = ('convenio', 'cliente', 'medico')
+    list_display = ('data', 'inicio', 'convenio', 'cliente', 'medico')
     fieldsets = (
         (None, {
-            'fields': ('convenio', 'cliente', 'medico','data','inicio')
+            'fields': ('convenio', 'cliente', 'medico', 'data', 'inicio')
         }),
     )

@@ -2,11 +2,10 @@ from django.db import models
 import datetime
 from django.core.exceptions import ValidationError
 
-
 # Create your models here.
 class Especialidade(models.Model):
     nome = models.CharField(max_length=50)
-    descricao = models.TextField(null=True)
+    descricao = models.TextField(null=True, verbose_name='Descrição')
 
     def __str__(self):
         return self.nome
@@ -19,6 +18,10 @@ def convert(horas, minutos, segundos):
 class Turno(models.Model):
     inicio = models.TimeField()
     fim = models.TimeField()
+    nome = models.CharField(max_length=50, null=True)
+
+    def __str__(self):
+        return self.nome
 
     def save(self, *args, **kwargs):
 
@@ -45,7 +48,7 @@ class Turno(models.Model):
 class EscalaTempo(models.Model):
     inicio = models.TimeField()
     fim = models.TimeField()
-    dia = models.ForeignKey(Turno, related_name="tempo", on_delete=models.CASCADE)
+    turno = models.ForeignKey(Turno, related_name="tempo", on_delete=models.CASCADE)
     disponivel = models.BooleanField(default=True)
 
 
@@ -65,7 +68,17 @@ class DiaAgenda(models.Model):
 
 
 class Cliente(models.Model):
+
+    SEXO_CHOICES = (
+        ('M', u'Masculino'),
+        ('F', u'Feminino'),
+    )
+
     nome = models.CharField(max_length=50)
+    cpf = models.CharField(max_length=11, verbose_name='Nº CPF', blank=True, null=True)
+    telefone = models.CharField(max_length=11, verbose_name='Nº Telefone', blank=True, null=True)
+    data_nascimento = models.DateField(blank=True, null=True, verbose_name='Data de nascimento')
+    sexo = models.CharField(max_length=1, null=True, choices=SEXO_CHOICES)
 
     def __str__(self):
         return self.nome

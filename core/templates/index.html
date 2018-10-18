@@ -59,7 +59,7 @@ Turnos
 <ul>
 
     {% for turno in turnos %}
-    <b>Turno {{turno.id}}</b>
+    <b>Turno {{turno.id}} - {{turno.nome}}</b>
 
         {% for escala in turno.tempo.all %}
 
