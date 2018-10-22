@@ -8,6 +8,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 # Create your views here.
+
+
 def index(request):
     template_name = 'index.html'
     context = {
@@ -21,22 +23,39 @@ def index(request):
     }
     return render(request, template_name, context)
 
+
 class list_especialidades(generics.ListCreateAPIView):
     queryset = Especialidade.objects.all()
     serializer_class = EspecialidadeSerializer
     name = 'list-especialidades'
 
-class list_medico(generics.ListCreateAPIView):  
+
+class medicos_especialidade(generics.ListCreateAPIView):
+    serializer_class = MedicoSerializer
+    name = 'medico-especialidades'
+
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        queryset = Medico.objects.filter(especialidade__pk=pk)
+        return queryset
+
+
+class especialidade_detail(generics.RetrieveDestroyAPIView):
+    queryset = Especialidade.objects.all()
+    serializer_class = EspecialidadeSerializer
+    name = 'especialidade-detail'
+
+
+class list_medico(generics.ListCreateAPIView):
     queryset = Medico.objects.all()
     serializer_class = MedicoSerializer
     name = 'list-medico'
 
 
-
 class escalas_medico(generics.ListCreateAPIView):
     serializer_class = DiaAgendaSerializer
     name = 'custom'
-    filter_fields  =  ( 'data' ,)
+    filter_fields = ('data',)
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
@@ -51,12 +70,12 @@ class escalas_medico(generics.ListCreateAPIView):
 
 class medico_detail(generics.RetrieveDestroyAPIView):
     queryset = Medico.objects.all()
-    filter_fields  =  ( 'nome' ,)
+    filter_fields = ('nome',)
     serializer_class = MedicoSerializer
     name = 'medico-detail'
 
     def get_queryset(self):
- 
+
         queryset = Medico.objects.all()
         favorite = self.kwargs.get('pk')
         print(favorite)

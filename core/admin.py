@@ -22,6 +22,7 @@ class MedicoAdmin(admin.ModelAdmin):
         }),
     )
 
+
 @admin.register(Turno)
 class MedicoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'inicio', 'fim',)
@@ -41,22 +42,25 @@ class ConvenioAdmin(admin.ModelAdmin):
         }),
     )
 
+
 @admin.register(EscalaTempo)
 class EscalaTempoAdmin(admin.ModelAdmin):
-    list_display = ('inicio','fim','turno')
+    list_display = ('inicio', 'fim', 'turno')
     fieldsets = (
         (None, {
-            'fields': ('inicio','fim','turno')
+            'fields': ('inicio', 'fim', 'turno')
         }),
     )
+
 
 class TurnosInline(admin.TabularInline):
     model = DiaAgenda.turnos.through
     extra = 3
 
+
 @admin.register(DiaAgenda)
 class DiaAgendaAdmin(admin.ModelAdmin):
-    list_display = ('data','medico')
+    list_display = ('data', 'medico')
     inlines = (TurnosInline,)
     fieldsets = (
         (None, {

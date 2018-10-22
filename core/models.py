@@ -3,6 +3,8 @@ import datetime
 from django.core.exceptions import ValidationError
 
 # Create your models here.
+
+
 class Especialidade(models.Model):
     nome = models.CharField(max_length=50)
     descricao = models.TextField(null=True, verbose_name='Descrição')
@@ -25,7 +27,8 @@ class Turno(models.Model):
 
     def save(self, *args, **kwargs):
 
-        horario1 = convert(self.inicio.hour, self.inicio.minute, self.inicio.second)
+        horario1 = convert(
+            self.inicio.hour, self.inicio.minute, self.inicio.second)
         horario2 = convert(self.fim.hour, self.fim.minute, self.fim.second)
         qtd_de_horas = horario2 - horario1
         tempo_consulta = datetime.timedelta(seconds=1800)
@@ -37,7 +40,8 @@ class Turno(models.Model):
         super(Turno, self).save(*args, **kwargs)
         for i in range(int(qtd_de_escalas)):
             if self.tempo.filter(inicio=str(inicio)).count() == 0:
-                escala = EscalaTempo.objects.create(inicio=str(inicio), fim=str(fim), dia=self)
+                escala = EscalaTempo.objects.create(
+                    inicio=str(inicio), fim=str(fim), turno=self)
                 inicio = fim
                 fim = inicio + tempo_consulta
             else:
@@ -48,7 +52,8 @@ class Turno(models.Model):
 class EscalaTempo(models.Model):
     inicio = models.TimeField()
     fim = models.TimeField()
-    turno = models.ForeignKey(Turno, related_name="tempo", on_delete=models.CASCADE)
+    turno = models.ForeignKey(
+        Turno, related_name="tempo", on_delete=models.CASCADE)
     disponivel = models.BooleanField(default=True)
 
 
@@ -75,9 +80,12 @@ class Cliente(models.Model):
     )
 
     nome = models.CharField(max_length=50)
-    cpf = models.CharField(max_length=11, verbose_name='Nº CPF', blank=True, null=True)
-    telefone = models.CharField(max_length=11, verbose_name='Nº Telefone', blank=True, null=True)
-    data_nascimento = models.DateField(blank=True, null=True, verbose_name='Data de nascimento')
+    cpf = models.CharField(
+        max_length=11, verbose_name='Nº CPF', blank=True, null=True)
+    telefone = models.CharField(
+        max_length=11, verbose_name='Nº Telefone', blank=True, null=True)
+    data_nascimento = models.DateField(
+        blank=True, null=True, verbose_name='Data de nascimento')
     sexo = models.CharField(max_length=1, null=True, choices=SEXO_CHOICES)
 
     def __str__(self):
@@ -106,10 +114,11 @@ class Consulta(models.Model):
         super(Consulta, self).clean()
         data_informada = self.medico.diaagenda_set.filter(data=self.data)
         if data_informada.count() == 0:
-            raise ValidationError('O medico escolhido não tem agenda disponivel para esse dia')
+            raise ValidationError(
+                'O medico escolhido não tem agenda disponivel para esse dia')
         else:
-            turnos= data_informada[0].turnos.filter(tempo__inicio=self.inicio,
-                                                    tempo__disponivel=True)
+            turnos = data_informada[0].turnos.filter(tempo__inicio=self.inicio,
+                                                     tempo__disponivel=True)
             print(turnos)
             if turnos.count() == 0:
                 raise ValidationError('O horário não está disponivel')
