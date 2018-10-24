@@ -1,14 +1,17 @@
 from django.shortcuts import render
-from .models import Medico, Especialidade, Cliente, Consulta, Convenio, Turno, Medico, DiaAgenda
+from .models import Medico, Especialidade, Cliente, Consulta, Convenio, Turno, Medico, DiaAgenda, EscalaTempo
 from rest_framework import generics
-from .serializers import EspecialidadeSerializer, MedicoSerializer, DiaAgendaSerializer
+from .serializers import EspecialidadeSerializer,ConsultaSerializer,ConveniosSerializer,ClienteSerializer,EscalaTempoSerializer, MedicoSerializer, DiaAgendaSerializer, DiaAgendaSerializerEspecialidade
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework as filters
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
+import datetime
+from django_filters import rest_framework as filters
+
 
 # Create your views here.
-
 
 def index(request):
     template_name = 'index.html'
@@ -30,6 +33,12 @@ class list_especialidades(generics.ListCreateAPIView):
     name = 'list-especialidades'
 
 
+class list_consultas(generics.ListCreateAPIView):
+    queryset = Consulta.objects.all()
+    serializer_class = ConsultaSerializer
+    name = 'list-consultas'
+
+
 class medicos_especialidade(generics.ListCreateAPIView):
     serializer_class = MedicoSerializer
     name = 'medico-especialidades'
@@ -45,12 +54,32 @@ class especialidade_detail(generics.RetrieveDestroyAPIView):
     serializer_class = EspecialidadeSerializer
     name = 'especialidade-detail'
 
+    def delete(self, request, *args, **kwargs):
+        pk = kwargs['pk']
+        especialidade = Especialidade.objects.get(pk=pk)
+        especialidade.delete()
+        if Especialidade.objects.filter(pk=pk).exists() == False:
+            return Response(status=status.HTTP_204_NO_CONTENT, data={'mensagem':'Deletado com sucesso'})
+        # else:
+            # return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 
 class list_medico(generics.ListCreateAPIView):
     queryset = Medico.objects.all()
     serializer_class = MedicoSerializer
     name = 'list-medico'
 
+class list_cliente(generics.ListCreateAPIView):
+    filter_fields = ('cpf',)
+    queryset = Cliente.objects.all()
+    serializer_class = ClienteSerializer
+    name = 'list-client'
+
+class cliente_detail(generics.RetrieveDestroyAPIView):
+    queryset = Cliente.objects.all()
+    serializer_class = ClienteSerializer
+    name = 'medico-detail'
 
 class escalas_medico(generics.ListCreateAPIView):
     serializer_class = DiaAgendaSerializer
@@ -66,6 +95,26 @@ class escalas_medico(generics.ListCreateAPIView):
         if data is not None:
             print('pronto')
         return queryset
+
+class list_convenio(generics.ListCreateAPIView):
+    # filter_fields = ('cpf',)
+    queryset = Convenio.objects.all()
+    serializer_class = ConveniosSerializer
+    name = 'list-convenio'
+
+class especialidade_data(generics.ListCreateAPIView):
+    serializer_class = DiaAgendaSerializerEspecialidade
+    name = 'dados'
+    filter_fields = ('data',)
+
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        hoje = datetime.date.today()
+        # escala_tempo = EscalaTempo.objects.all()
+        # escala_tempo = EscalaTempo.objects.filter(turno__dia_agenda__medico__especialidade__pk=pk,
+        #                                                          turno__dia_agenda__data__gte=hoje)
+        medico = DiaAgenda.objects.filter(medico__especialidade__pk=pk).values('data','turno__tempo__inicio','medico__nome','medico__pk').distinct()
+        return medico
 
 
 class medico_detail(generics.RetrieveDestroyAPIView):

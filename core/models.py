@@ -21,6 +21,7 @@ class Turno(models.Model):
     inicio = models.TimeField()
     fim = models.TimeField()
     nome = models.CharField(max_length=50, null=True)
+    dia_agenda = models.ForeignKey('core.DiaAgenda', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.nome
@@ -68,7 +69,7 @@ class Medico(models.Model):
 
 class DiaAgenda(models.Model):
     data = models.DateField()
-    turnos = models.ManyToManyField(Turno)
+    # turnos = models.ForeignKey(Turno, on_delete=models.CASCADE)
     medico = models.ForeignKey(Medico, on_delete=models.CASCADE)
 
 
@@ -87,6 +88,8 @@ class Cliente(models.Model):
     data_nascimento = models.DateField(
         blank=True, null=True, verbose_name='Data de nascimento')
     sexo = models.CharField(max_length=1, null=True, choices=SEXO_CHOICES)
+    convenio = models.ForeignKey('core.Convenio', on_delete=models.CASCADE)
+
 
     def __str__(self):
         return self.nome
@@ -102,7 +105,7 @@ class Convenio(models.Model):
 class Consulta(models.Model):
     medico = models.ForeignKey(Medico, on_delete=models.CASCADE)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
-    convenio = models.ForeignKey(Convenio, on_delete=models.CASCADE)
+    # convenio = models.ForeignKey(Convenio, on_delete=models.CASCADE)
     data = models.DateField(null=True)
     inicio = models.TimeField(null=True)
     fim = models.TimeField(null=True, blank=True)
@@ -117,7 +120,7 @@ class Consulta(models.Model):
             raise ValidationError(
                 'O medico escolhido não tem agenda disponivel para esse dia')
         else:
-            turnos = data_informada[0].turnos.filter(tempo__inicio=self.inicio,
+            turnos = data_informada[0].turno_set.filter(tempo__inicio=self.inicio,
                                                      tempo__disponivel=True)
             print(turnos)
             if turnos.count() == 0:
@@ -131,7 +134,7 @@ class Consulta(models.Model):
 
         data_informada = self.medico.diaagenda_set.filter(data=self.data)
         if data_informada.count() != 0:
-            turno = data_informada[0].turnos.filter(tempo__inicio=self.inicio,
+            turno = data_informada[0].turno_set.filter(tempo__inicio=self.inicio,
                                                     tempo__disponivel=True)
             if turno.count() == 1:
                 escala = turno[0].tempo.filter(inicio=self.inicio)

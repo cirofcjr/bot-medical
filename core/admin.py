@@ -54,7 +54,7 @@ class EscalaTempoAdmin(admin.ModelAdmin):
 
 
 class TurnosInline(admin.TabularInline):
-    model = DiaAgenda.turnos.through
+    model = Turno
     extra = 3
 
 
@@ -74,16 +74,16 @@ class ClienteAdmin(admin.ModelAdmin):
     list_display = ('nome', 'sexo', 'data_nascimento', 'cpf', 'telefone',)
     fieldsets = (
         (None, {
-            'fields': ('nome', 'sexo', 'data_nascimento', 'cpf', 'telefone',)
+            'fields': ('nome', 'sexo', 'data_nascimento', 'cpf', 'telefone','convenio')
         }),
     )
 
 
 @admin.register(Consulta)
 class ConsultaAdmin(admin.ModelAdmin):
-    list_display = ('data', 'inicio', 'convenio', 'cliente', 'medico')
+    list_display = ('data', 'inicio', 'cliente', 'medico')
     fieldsets = (
         (None, {
-            'fields': ('convenio', 'cliente', 'medico', 'data', 'inicio')
+            'fields': ('cliente', 'medico', 'data', 'inicio')
         }),
     )
