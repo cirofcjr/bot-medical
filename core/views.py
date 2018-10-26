@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .models import Medico, Especialidade, Cliente, Consulta, Convenio, Turno, Medico, DiaAgenda, EscalaTempo
 from rest_framework import generics
-from .serializers import EspecialidadeSerializer,ConsultaSerializer,ConveniosSerializer,ClienteSerializer,EscalaTempoSerializer, MedicoSerializer, DiaAgendaSerializer, DiaAgendaSerializerEspecialidade
+from .serializers import EspecialidadeSerializer, ConsultaSerializer, ConveniosSerializer, ClienteSerializer, EscalaTempoSerializer, MedicoSerializer, DiaAgendaSerializer, DiaAgendaSerializerEspecialidade
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework as filters
 from rest_framework.decorators import api_view
@@ -59,10 +59,9 @@ class especialidade_detail(generics.RetrieveDestroyAPIView):
         especialidade = Especialidade.objects.get(pk=pk)
         especialidade.delete()
         if Especialidade.objects.filter(pk=pk).exists() == False:
-            return Response(status=status.HTTP_204_NO_CONTENT, data={'mensagem':'Deletado com sucesso'})
+            return Response(status=status.HTTP_204_NO_CONTENT, data={'mensagem': 'Deletado com sucesso'})
         # else:
             # return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 
 class list_medico(generics.ListCreateAPIView):
@@ -70,16 +69,19 @@ class list_medico(generics.ListCreateAPIView):
     serializer_class = MedicoSerializer
     name = 'list-medico'
 
+
 class list_cliente(generics.ListCreateAPIView):
     filter_fields = ('cpf',)
     queryset = Cliente.objects.all()
     serializer_class = ClienteSerializer
     name = 'list-client'
 
+
 class cliente_detail(generics.RetrieveDestroyAPIView):
     queryset = Cliente.objects.all()
     serializer_class = ClienteSerializer
     name = 'medico-detail'
+
 
 class escalas_medico(generics.ListCreateAPIView):
     serializer_class = DiaAgendaSerializer
@@ -96,11 +98,13 @@ class escalas_medico(generics.ListCreateAPIView):
             print('pronto')
         return queryset
 
+
 class list_convenio(generics.ListCreateAPIView):
     # filter_fields = ('cpf',)
     queryset = Convenio.objects.all()
     serializer_class = ConveniosSerializer
     name = 'list-convenio'
+
 
 class especialidade_data(generics.ListCreateAPIView):
     serializer_class = DiaAgendaSerializerEspecialidade
@@ -110,10 +114,8 @@ class especialidade_data(generics.ListCreateAPIView):
     def get_queryset(self):
         pk = self.kwargs.get('pk')
         hoje = datetime.date.today()
-        # escala_tempo = EscalaTempo.objects.all()
-        # escala_tempo = EscalaTempo.objects.filter(turno__dia_agenda__medico__especialidade__pk=pk,
-        #                                                          turno__dia_agenda__data__gte=hoje)
-        medico = DiaAgenda.objects.filter(medico__especialidade__pk=pk).values('data','turno__tempo__inicio','medico__nome','medico__pk').distinct()
+        medico = DiaAgenda.objects.filter(medico__especialidade__pk=pk, turno__tempo__disponivel=True).values(
+            'data', 'turno__tempo__inicio', 'medico__nome', 'medico__pk').distinct()
         return medico
 
 

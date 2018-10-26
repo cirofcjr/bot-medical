@@ -26,6 +26,7 @@ class Turno(models.Model):
     def __str__(self):
         return self.nome
 
+    # Quando criar o turno ele cria os objetos escala associados
     def save(self, *args, **kwargs):
 
         horario1 = convert(
@@ -90,7 +91,6 @@ class Cliente(models.Model):
     sexo = models.CharField(max_length=1, null=True, choices=SEXO_CHOICES)
     convenio = models.ForeignKey('core.Convenio', on_delete=models.CASCADE)
 
-
     def __str__(self):
         return self.nome
 
@@ -113,6 +113,8 @@ class Consulta(models.Model):
     def __str__(self):
         return self.medico.nome + " " + self.cliente.nome
 
+    # clean -> limpeza
+    # Antes de salvar o obj ele faz as verificações desse metodo
     def clean(self):
         super(Consulta, self).clean()
         data_informada = self.medico.diaagenda_set.filter(data=self.data)
@@ -121,7 +123,7 @@ class Consulta(models.Model):
                 'O medico escolhido não tem agenda disponivel para esse dia')
         else:
             turnos = data_informada[0].turno_set.filter(tempo__inicio=self.inicio,
-                                                     tempo__disponivel=True)
+                                                        tempo__disponivel=True)
             print(turnos)
             if turnos.count() == 0:
                 raise ValidationError('O horário não está disponivel')
@@ -129,13 +131,16 @@ class Consulta(models.Model):
         # if self.nome == '':
         #     raise ValidationError('Proibido criar disciplina sem nome')
 
+    # Quando ele criar a consulta ele pega o horario escolhido seta
+    # indisponivel
     def save(self, *args, **kwargs):
         self.full_clean()
 
         data_informada = self.medico.diaagenda_set.filter(data=self.data)
         if data_informada.count() != 0:
             turno = data_informada[0].turno_set.filter(tempo__inicio=self.inicio,
-                                                    tempo__disponivel=True)
+                                                       tempo__disponivel=True)
+            print(turno)
             if turno.count() == 1:
                 escala = turno[0].tempo.filter(inicio=self.inicio)
                 escala = escala[0]
