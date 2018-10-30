@@ -118,6 +118,12 @@ class Bot():
                 datas[var] = item['data']
                 var += 1
         data_escolhida = datas[int(id)]
+        dia = data_escolhida.split("/")[0]
+        mes = data_escolhida.split("/")[1]
+        ano = data_escolhida.split("/")[2]
+        dta = ano + "-" + mes + "-" + dia
+        self.dicionario['data'] = dta
+
         final = data_escolhida.split("/")
         entry = "%2F"
         data = final[0] + entry + final[1] + entry + final[2]
@@ -160,6 +166,7 @@ class Bot():
 
     def seleciona_medico(self, id):
         hour = self.horarios[int(id)]
+        print(hour)
         horario = id
         self.dict('horario', hour)
         m2 = self.m2
@@ -183,6 +190,40 @@ class Bot():
         for key, value in new_dicionario.items():
             mensagem += str(key) + "- " + value['nome'] + '\n'
         return mensagem
+    def get_medico_selecionado(self, id):
+        hour = self.horarios[int(id)]
+        horario = id
+        m2 = self.m2
+        for key, value in m2[int(horario)].items():
+            # print(key)
+            horario_selecionado = key
+        medicos_disponiveis = m2[int(horario)]
+        var = ""
+        for m in medicos_disponiveis:
+            var = m
+        medicos_para_o_horario = m2[int(horario)][var]
+        # print(medicos_para_o_horario)
+        indice = 1
+        new_dicionario = {}
+        for key, value in medicos_para_o_horario.items():
+            new_dicionario[indice] = {'pk': key, 'nome': value}
+            indice += 1
+        return  new_dicionario
+
+    def post_consulta(self):
+        dicionario = self.dicionario
+        data = {
+            "medico": dicionario['medico'],
+            "cliente": dicionario['cliente'],
+            "data": dicionario['data'],
+            "inicio": dicionario['horario']
+        }
+        criar_consulta = requests.post(url + "consultas/", data=data)
+        if criar_consulta.status_code == 201:
+            return "Agendado com sucesso!!!"
+        else:
+            return "Error!!!"
+
 
     def pensa(self, msg=None):
 
@@ -209,6 +250,11 @@ class Bot():
             return self.data_escolhida(msg)
         if len(self.mensagens_enviadas) == 8:
             return self.seleciona_medico(msg)
+        if len(self.mensagens_enviadas) == 9:
+            pk_medico = self.get_medico_selecionado(msg)[int(msg)]['pk']
+            self.dicionario['medico'] = pk_medico
+            print(self.dicionario)
+            return self.post_consulta()
 
             # return self.datas_disponiveis_para_especialidade(msg,
             # self.especialidade.pk)
@@ -257,10 +303,6 @@ class Bot():
         #     if cliente.data_nascimento == data_nascimento:
         #         print('ok')
         #     return cliente
-
-    def teste(self, number):
-        if number == 1:
-            return "Teste"
 
 
 telegram = telepot.Bot("771366635:AAGWjSGgYTyICMq9vC1lMa5yTQt_1YzE2XY")
