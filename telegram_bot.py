@@ -186,7 +186,7 @@ class Bot():
             indice += 1
 
         # print(new_dicionario)
-        mensagem = ""
+        mensagem = "Selecione o medico:\n"
         for key, value in new_dicionario.items():
             mensagem += str(key) + "- " + value['nome'] + '\n'
         return mensagem
