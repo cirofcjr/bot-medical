@@ -121,7 +121,7 @@ class Bot():
         final = data_escolhida.split("/")
         entry = "%2F"
         data = final[0] + entry + final[1] + entry + final[2]
-        filtro = url + "especialidade/7/datas/?data=" + data
+        filtro = url + "especialidade/"+especialidade_id+"/datas/?data=" + data
         filtrada = requests.get(filtro)
         horarios_vagos = {}
         horarios = filtrada.json()
