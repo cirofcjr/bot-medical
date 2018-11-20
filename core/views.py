@@ -114,7 +114,7 @@ class especialidade_data(generics.ListCreateAPIView):
     def get_queryset(self):
         pk = self.kwargs.get('pk')
         hoje = datetime.date.today()
-        medico = DiaAgenda.objects.filter(medico__especialidade__pk=pk, turno__tempo__disponivel=True).values(
+        medico = DiaAgenda.objects.filter(data__gte=hoje, medico__especialidade__pk=pk, turno__tempo__disponivel=True).values(
             'data', 'turno__tempo__inicio', 'medico__nome', 'medico__pk').distinct()
         return medico
 
