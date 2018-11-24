@@ -32,10 +32,19 @@ class Bot():
     m2 = {}
     contador = 0
     horarios = {}
+    data_cliente = {
+        "nome": "",
+        "cpf": "",
+        "telefone": "",
+        "data_nascimento": None,
+        "sexo": None,
+        "convenio": None
+
+    }
 
     def inicio_conversa(msg=None):
         # print(mensagem)
-        boa_tarde = "Boa Tarde!"
+        boa_tarde = "Bom dia!"
         # self.mensagens_enviadas.append(boa_tarde)
         # print(self.mensagens_enviadas)
         mensagem = "Digite a opção desejada:\n 1 - Você deseja agendar consulta"
@@ -60,13 +69,13 @@ class Bot():
         if len(resultado) == 1:
             resultado = resultado[0]
             cliente = Cliente()
-            cliente.pk = resultado['id']
-            cliente.nome = resultado['nome']
-            cliente.cpf = resultado['cpf']
-            cliente.data_nascimento = resultado['data_nascimento']
-            cliente.data_nascimento = resultado['data_nascimento']
-            cliente.telefone = resultado['telefone']
-            return cliente
+            self.new_cliente.pk = resultado['id']
+            self.new_cliente.nome = resultado['nome']
+            self.new_cliente.cpf = resultado['cpf']
+            self.new_cliente.data_nascimento = resultado['data_nascimento']
+            self.new_cliente.data_nascimento = resultado['data_nascimento']
+            self.new_cliente.telefone = resultado['telefone']
+            return self.new_cliente
         else:
             return False
 
@@ -226,26 +235,64 @@ class Bot():
             return "Error!!!"
 
     def criar_cliente(self, msg):
+        convenios = requests.get(url + 'convenios/')
+        convenio_selecionado = ""
+
         cliente = self.new_cliente
+        data = self.data_cliente
         if cliente.nome == "":
             self.new_cliente.nome = msg
+            data['nome'] = cliente.nome
             return "Confirme o CPF do cliente:"
         if cliente.cpf == "":
             cliente.cpf = msg
+            data['cpf'] = cliente.cpf
             return "Informe a sua data de nascimento:"
         if cliente.data_nascimento == "":
             dia = msg.split("/")[0]
             mes = msg.split("/")[1]
             ano = msg.split("/")[2]
             dta = ano + "-" + mes + "-" + dia
-            cliente.data_nascimento = dta
+            cliente.data_nascimento = msg
+            data['data_nascimento'] = dta
             return "Digite o numero do seu telefone com DDD"
         if cliente.telefone == "":
             cliente.telefone = msg
+            data['telefone'] = cliente.telefone
+            count = 0
+            list_convenios = convenios.json()
+            var = "Qual o seu convenio?\n"
+            for convenio in list_convenios:
+                var += str(count + 1) + ' - ' + convenio['nome'] + '\n'
+                count += 1
+            return var
+        if data['convenio'] == None:
+            list_convenios = convenios.json()
+            selecionado = ""
+            count = 0
+            dicionario = {}
+            for convenio in list_convenios:
+                dicionario[str(count + 1)] = convenio['nome']
+                count += 1
 
-            return cliente.nome + " " + cliente.data_nascimento + " " + cliente.telefone
-        self.var = True
-        return "Confirme a data de nascimento"
+            for convenio in list_convenios:
+                if convenio['nome'] == dicionario[msg]:
+                    convenio_selecionado = convenio['id']
+            data["convenio"] = convenio_selecionado
+            return "Qual o sexo do cliente\n" + "1 - Masculino\n" + "2 - Feminino"
+        if data['sexo'] == None:
+            print(msg)
+            if msg == "1":
+                data['sexo'] = "M"
+            if msg == "2":
+                data['sexo'] = "F"
+            post_cliente = requests.post(
+                url + "clientes/", data=self.data_cliente)
+            if post_cliente.status_code == 201:
+                self.var = True
+                self.dict('cliente', post_cliente.json()['id'])
+
+                return cliente.nome + " \n" + cliente.data_nascimento + " \n" + cliente.telefone + "\n" + "Os dados estão corretos?\n 1- Sim\n 2- Não "
 
     def pensa(self, msg=None, chat_id=None):
 
@@ -253,7 +300,6 @@ class Bot():
         if chat_id not in self.mensagens_enviadas:
             self.mensagens_enviadas[chat_id] = {}
         self.mensagens_enviadas[chat_id][self.contador] = msg
-        print(len(self.mensagens_enviadas))
         if len(self.mensagens_enviadas[chat_id]) == 1:
             return self.inicio_conversa()
         if len(self.mensagens_enviadas[chat_id]) == 2:
@@ -275,72 +321,34 @@ class Bot():
                     return "Informe o nome do cliente:"
 
                 return self.criar_cliente(msg)
+            if self.var == True:
+                self.mensagens_enviadas[chat_id][self.contador] = msg
+                print(self.mensagens_enviadas[chat_id])
+                print(len(self.mensagens_enviadas[chat_id]))
+                return "Confirme a data de nascimento"
 
-        if len(self.mensagens_enviadas) == 4:
+        if len(self.mensagens_enviadas[chat_id]) == 4:
             return self.validar_nascimento(msg, self.new_cliente.data_nascimento)
 
-        if len(self.mensagens_enviadas) == 5:
+        if len(self.mensagens_enviadas[chat_id]) == 5:
             self.especialidade = self.criar_especialidade(msg)
             return self.especialidade.descricao + '\n' + "Deseja ser atendido por essa especialidade ?\n1 - Sim\n2 - Não "
-        if len(self.mensagens_enviadas) == 6:
+        if len(self.mensagens_enviadas[chat_id]) == 6:
             return self.datas_disponiveis_para_especialidade()
-        if len(self.mensagens_enviadas) == 7:
+        if len(self.mensagens_enviadas[chat_id]) == 7:
             return self.data_escolhida(msg)
-        if len(self.mensagens_enviadas) == 8:
+        if len(self.mensagens_enviadas[chat_id]) == 8:
             return self.seleciona_medico(msg)
-        if len(self.mensagens_enviadas) == 9:
+        if len(self.mensagens_enviadas[chat_id]) == 9:
             pk_medico = self.get_medico_selecionado(msg)[int(msg)]['pk']
             self.dicionario['medico'] = pk_medico
             print(self.dicionario)
             return self.post_consulta()
 
-            # return self.datas_disponiveis_para_especialidade(msg,
-            # self.especialidade.pk)
-
-            # def enviar_mensagem(self, msg=None):
-            #     if len(self.mensagens_enviadas) == 0:
-
-            # if len(self.mensagens_enviadas) == 1:
-            #     if msg == '1':
-
-            #         self.mensagens_enviadas.append("ok")
-            #         r = requests.get("http://127.0.0.1:8000/especialidades/")
-
-            #         lista = r.json()
-            #         string = "Qual a especialidade que você deseja realizar a consulta:\n "
-            #         for i in range(len(lista)):
-            #             string += str(i + 1) + " - " + lista[i]['nome'] + '\n'
-            #         return string
-            #     else:
-            #         mensagem = "Digite a opção desejada:\n 1 - Você deseja agendar consulta"
-
-            # return "Desculpa não entendi, por favor digite a opção
-            # novamente\n" + mensagem
-
     def get_cliente(self, number="", cpf=""):
         get_cliente = 'clientes/?cpf='
         if number == 1:
             print("passou")
-        # 888.888.123-84
-        # print(""Digite o seu CPF":")
-        # cpf = input("Qual o CPF do beneficiario que deseja a consulta?")
-        # requisicao = requests.get(url + get_cliente + cpf)
-        # resultado = requisicao.json()
-        # if len(resultado) == 1:
-        #     resultado = resultado[0]
-        #     cliente = Cliente()
-        #     # print(resultado)
-        #     cliente.pk = resultado['id']
-        #     cliente.nome = resultado['nome']
-        #     cliente.cpf = resultado['cpf']
-        #     cliente.data_nascimento = resultado['data_nascimento']
-        #     cliente.data_nascimento = resultado['data_nascimento']
-        #     cliente.telefone = resultado['telefone']
-        #     data_nascimento = input(
-        #         "Confirme a sua data de data_nascimento:")
-        #     if cliente.data_nascimento == data_nascimento:
-        #         print('ok')
-        #     return cliente
 
 
 telegram = telepot.Bot("771366635:AAGWjSGgYTyICMq9vC1lMa5yTQt_1YzE2XY")
@@ -357,7 +365,6 @@ def receber_msg(msg):
     # print(mensagem)
 
 telegram.message_loop(receber_msg)
-
 
 while True:
     pass
