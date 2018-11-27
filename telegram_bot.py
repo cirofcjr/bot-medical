@@ -26,7 +26,6 @@ class Bot():
     var = None
     cria_usuario = None
     mensagens_enviadas = {}
-    cliente = ""
     especialidade = ""
     dicionario = {}
     m2 = {}
@@ -43,17 +42,13 @@ class Bot():
     }
 
     def inicio_conversa(msg=None):
-        # print(mensagem)
         boa_tarde = "Bom dia!"
-        # self.mensagens_enviadas.append(boa_tarde)
-        # print(self.mensagens_enviadas)
         mensagem = "Digite a opção desejada:\n 1 - Você deseja agendar consulta"
-
         return boa_tarde + '\n' + mensagem
 
     def pedir_cpf(self, number=None):
         if number == "1":
-            msg1 = "Digite seu CPF: "
+            msg1 = "Precisamos do CPF do beneficiario que deseja o agendamento:"
             return msg1
 
     def validar_nascimento(self, msg, data_nascimento):
@@ -117,7 +112,6 @@ class Bot():
 
     def data_escolhida(self, id):
         especialidade_id = self.dicionario['especialidade']
-
         r = requests.get(url + "especialidade/" + especialidade_id + "/datas/")
         horarios = r.json()
         var = 1
@@ -132,7 +126,6 @@ class Bot():
         ano = data_escolhida.split("/")[2]
         dta = ano + "-" + mes + "-" + dia
         self.dicionario['data'] = dta
-
         final = data_escolhida.split("/")
         entry = "%2F"
         data = final[0] + entry + final[1] + entry + final[2]
@@ -175,26 +168,22 @@ class Bot():
 
     def seleciona_medico(self, id):
         hour = self.horarios[int(id)]
-        print(hour)
         horario = id
         self.dict('horario', hour)
         m2 = self.m2
         for key, value in m2[int(horario)].items():
-            # print(key)
             horario_selecionado = key
         medicos_disponiveis = m2[int(horario)]
         var = ""
         for m in medicos_disponiveis:
             var = m
         medicos_para_o_horario = m2[int(horario)][var]
-        # print(medicos_para_o_horario)
         indice = 1
         new_dicionario = {}
         for key, value in medicos_para_o_horario.items():
             new_dicionario[indice] = {'pk': key, 'nome': value}
             indice += 1
 
-        # print(new_dicionario)
         mensagem = "Selecione o medico:\n"
         for key, value in new_dicionario.items():
             mensagem += str(key) + "- " + value['nome'] + '\n'
@@ -212,7 +201,6 @@ class Bot():
         for m in medicos_disponiveis:
             var = m
         medicos_para_o_horario = m2[int(horario)][var]
-        # print(medicos_para_o_horario)
         indice = 1
         new_dicionario = {}
         for key, value in medicos_para_o_horario.items():
@@ -291,7 +279,6 @@ class Bot():
             if post_cliente.status_code == 201:
                 self.var = True
                 self.dict('cliente', post_cliente.json()['id'])
-
                 return cliente.nome + " \n" + cliente.data_nascimento + " \n" + cliente.telefone + "\n" + "Os dados estão corretos?\n 1- Sim\n 2- Não "
 
     def pensa(self, msg=None, chat_id=None):
@@ -303,15 +290,12 @@ class Bot():
         if len(self.mensagens_enviadas[chat_id]) == 1:
             return self.inicio_conversa()
         if len(self.mensagens_enviadas[chat_id]) == 2:
-            # print(msg)
             return self.pedir_cpf(msg)
-
         if len(self.mensagens_enviadas[chat_id]) == 3:
             if self.var == None:
                 if self.valida_cpf(msg) != False:
-                    self.cliente = self.valida_cpf(msg)
-                    self.dict('cliente', self.cliente.pk)
-                    return "Oi, " + self.cliente.nome + "\nConfirme sua data de nascimento:"
+                    self.dict('cliente', self.new_cliente.pk)
+                    return "Oi, " + self.new_cliente.nome + "\nConfirme sua data de nascimento:"
                 else:
                     self.var = False
             if self.var == False:
@@ -323,12 +307,14 @@ class Bot():
                 return self.criar_cliente(msg)
             if self.var == True:
                 self.mensagens_enviadas[chat_id][self.contador] = msg
-                print(self.mensagens_enviadas[chat_id])
-                print(len(self.mensagens_enviadas[chat_id]))
-                return "Confirme a data de nascimento"
+                return "Confirme a data de nascimento:"
 
         if len(self.mensagens_enviadas[chat_id]) == 4:
-            return self.validar_nascimento(msg, self.new_cliente.data_nascimento)
+            if self.validar_nascimento(msg, self.new_cliente.data_nascimento) != False:
+                return self.validar_nascimento(msg, self.new_cliente.data_nascimento)
+            else:
+                self.mensagens_enviadas[chat_id].pop(self.contador)
+                return "A data de nascimento informada:" + msg + " não consta em nosso sistema você pode tentar novamente digitar a data correta:"
 
         if len(self.mensagens_enviadas[chat_id]) == 5:
             self.especialidade = self.criar_especialidade(msg)

@@ -23,6 +23,7 @@ if var == '1':
     requisicao = requests.get(url + get_cliente + cpf)
     resultado = requisicao.json()
 
+    # Consulta an
     if len(resultado) == 1:
         resultado = resultado[0]
         cliente = Cliente()
