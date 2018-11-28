@@ -1,7 +1,7 @@
 from django.db import models
 import datetime
 from django.core.exceptions import ValidationError
-
+from .regex import validacao_do_cpf
 # Create your models here.
 
 
@@ -83,7 +83,7 @@ class Cliente(models.Model):
 
     nome = models.CharField(max_length=50)
     cpf = models.CharField(
-        max_length=11, verbose_name='Nº CPF', blank=True, null=True)
+        max_length=20, verbose_name='Nº CPF', blank=True, null=True)
     telefone = models.CharField(
         max_length=11, verbose_name='Nº Telefone', blank=True, null=True)
     data_nascimento = models.DateField(
@@ -93,6 +93,17 @@ class Cliente(models.Model):
 
     def __str__(self):
         return self.nome
+
+    def clean(self):
+        super(Cliente, self).clean()
+        if validacao_do_cpf(self.cpf) == False:
+            raise ValidationError(
+                'Informe o CPF correto.')
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        self.cpf = validacao_do_cpf(self.cpf)
+        super(Cliente, self).save(*args, **kwargs)
 
 
 class Convenio(models.Model):
