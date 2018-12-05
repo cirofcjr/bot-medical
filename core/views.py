@@ -12,6 +12,14 @@ from django_filters import rest_framework as filters
 
 
 # Create your views here.
+@api_view(['GET', 'POST'])
+def webhook(request):
+    dates = {"fulfillmentText": "This is a text response"}
+
+    if request.method == 'POST':
+        return Response(dates)
+    return Response(dates)
+
 
 def index(request):
     template_name = 'index.html'

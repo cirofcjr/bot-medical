@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from core.views import index
-from core.views import list_especialidades, list_consultas, list_convenio, cliente_detail, list_cliente, especialidade_data, list_medico, medico_detail, escalas_medico, especialidade_detail, medicos_especialidade
+from core.views import list_especialidades, webhook, list_consultas, list_convenio, cliente_detail, list_cliente, especialidade_data, list_medico, medico_detail, escalas_medico, especialidade_detail, medicos_especialidade
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -39,6 +39,7 @@ urlpatterns = [
     path('cliente/<int:pk>/', cliente_detail.as_view(), name=cliente_detail.name),
     path('convenios/', list_convenio.as_view(), name=list_convenio.name),
     path('consultas/', list_consultas.as_view(), name=list_consultas.name),
+    path('webhook/', webhook),
 
 
 
