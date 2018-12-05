@@ -130,7 +130,7 @@ STATIC_URL = '/static/'
 
 #     # coding: utf-8
 import dj_database_url
-from .base import *
+# from .base import *
 from decouple import config
 
 DEBUG = True
