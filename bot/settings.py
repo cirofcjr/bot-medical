@@ -27,6 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+import dj_database_url
+
+DATABASES['default'] = dj_database_url.config()
 
 # Application definition
 
@@ -129,7 +132,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 #     # coding: utf-8
-import dj_database_url
 # from .base import *
 
 
@@ -159,7 +161,6 @@ STATICFILES_DIRS = (
 )
 
 # Database Postgres
-DATABASES['default'] = dj_database_url.config()
 
 # Whitenoise: https://devcenter.heroku.com/articles/django-assets
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
