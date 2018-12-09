@@ -9,16 +9,56 @@ from rest_framework.response import Response
 from rest_framework import status
 import datetime
 from django_filters import rest_framework as filters
+import json
 
 
 # Create your views here.
 @api_view(['GET', 'POST'])
 def webhook(request):
+
     dates = {"fulfillmentText": "Ola tudo bem"}
+    date2 = ""
+
+    def dates2(value):
+        date2 = {
+            "fulfillmentMessages": [
+                {
+                    "text": {
+                        "text": [value]
+                    },
+
+                }
+            ]
+
+
+        }
+        return date2
 
     if request.method == 'POST':
-        return Response(dates)
-    return Response(dates)
+        # converte os dados recebidos do body em formato json
+        json_data = json.loads(str(request.body, encoding='utf-8'))
+
+        #intent
+        intent_name = json_data['queryResult']['intent']['displayName']
+
+        # dados_enviados = json_data['queryResult']['queryText']
+
+        # esses são os parametros que solicitei do usuario
+        print(intent_name)
+        entrada = json_data['queryResult']['parameters']
+        if intent_name == "consulta.paciente":
+            query = Cliente.objects.filter(cpf=entrada['cpf'])
+            if query.count() > 0:
+                cliente = query[0]
+                return Response(dates2(cliente.nome + " " + cliente.cpf))
+            
+
+        date2 = dates2("intent diferente")
+        # print(json_data['queryResult']['intent']['displayName'])
+        # print(json_data['queryResult']['queryText'])
+
+        return Response(date2)
+    return Response(date2)
 
 
 def index(request):
