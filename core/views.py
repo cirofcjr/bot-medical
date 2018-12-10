@@ -22,28 +22,28 @@ def webhook(request):
     def dates2(value):
         date2 = {
             "fulfillmentMessages": [
-                {
-                    
-                        "card": {
-                            "title": "card title",
-                            "subtitle": "card text",
-                            "imageUri": "https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png",
-                            "buttons": [
-                                {
-                                    "text": "button text",
-                                    "postback": "https://assistant.google.com/"
-                                }
-                            ]
-                        }
-                    
-                }
                 # {
-                #     "text": {
-                #         "text": [value]
-                #     },
 
+                #         "card": {
+                #             "title": "card title",
+                #             "subtitle": "card text",
+                #             "imageUri": "https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png",
+                #             "buttons": [
+                #                 {
+                #                     "text": "button text",
+                #                     "postback": "https://assistant.google.com/"
+                #                 }
+                #             ]
+                #         }
 
                 # }
+                {
+                    "text": {
+                        "text": [value]
+                    },
+
+
+                }
             ]
 
         }
