@@ -41,22 +41,23 @@ def webhook(request):
         #intent
         intent_name = json_data['queryResult']['intent']['displayName']
 
-        # dados_enviados = json_data['queryResult']['queryText']
 
         # esses são os parametros que solicitei do usuario
         print(intent_name)
         entrada = json_data['queryResult']['parameters']
+        # consulta o banco de dados e verifica se existe alguem com o cpf digitado e se houver 
+        # ele retorna nome e cpf
         if intent_name == "consulta.paciente":
             query = Cliente.objects.filter(cpf=entrada['cpf'])
             if query.count() > 0:
                 cliente = query[0]
-                return Response(dates2(cliente.nome + " " + cliente.cpf))
+                r=  Response(dates2(cliente.nome + " " + cliente.cpf))
+                print(r)
+                return Response(dates2(cliente.nome + " " + cliente.cpf + r.content))
             
-
+        
         date2 = dates2("intent diferente")
-        # print(json_data['queryResult']['intent']['displayName'])
-        # print(json_data['queryResult']['queryText'])
-
+       
         return Response(date2)
     return Response(date2)
 
