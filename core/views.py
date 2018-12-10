@@ -10,7 +10,7 @@ from rest_framework import status
 import datetime
 from django_filters import rest_framework as filters
 import json
-
+from core.regex import validacao_do_cpf
 
 # Create your views here.
 @api_view(['GET', 'POST'])
@@ -63,14 +63,14 @@ def webhook(request):
         # consulta o banco de dados e verifica se existe alguem com o cpf digitado e se houver
         # ele retorna nome e cpf
         if intent_name == "consulta.paciente":
-            query = Cliente.objects.filter(cpf=entrada['cpf'])
+            cpf = validacao_cpf(entrada['cpf'])
+            query = Cliente.objects.filter(cpf=cpf)
             if query.count() > 0:
                 cliente = query[0]
 
                 r = Response(
-                    dates2("João de Arêa Leão" + "\n\n" + cliente.cpf),)
+                    dates2(cliente.nome+ "\n" + cliente.cpf),)
                 r.content_type = 'application/json; charset=UTF-8'
-                # r._headers['content-type'] = 'application/json;charset=UTF-8'
                 print(r.content_type)
                 return r
 
