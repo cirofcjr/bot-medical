@@ -13,6 +13,8 @@ import json
 from core.regex import validacao_do_cpf
 
 # Create your views here.
+
+
 @api_view(['GET', 'POST'])
 def webhook(request):
 
@@ -39,7 +41,7 @@ def webhook(request):
                 # }
                 {
                     "text": {
-                        "text": [value] + "\nVamos agendar? "
+                        "text": [value]
                     },
 
 
@@ -50,13 +52,14 @@ def webhook(request):
         # date2 = {"fulfillmentText": value + "\n\n teste" + "/n/n teste"}
 
         return date2
+
     def consulta_paciente(self, cpf):
         cpf = validacao_cpf(entrada['cpf'])
         query = Cliente.objects.filter(cpf=cpf)
         if query.count() > 0:
             cliente = query[0]
         r = Response(
-            dates2(cliente.nome+ "\n" + cliente.cpf),)
+            dates2(cliente.nome),)
         r.content_type = 'application/json; charset=UTF-8'
         print(r.content_type)
         return r
@@ -67,24 +70,27 @@ def webhook(request):
 
         # intent
         intent_name = json_data['queryResult']['intent']['displayName']
-
+        print(intent_name)
         # esses são os parametros que solicitei do usuario
         entrada = json_data['queryResult']['parameters']
         # consulta o banco de dados e verifica se existe alguem com o cpf digitado e se houver
         # ele retorna nome e cpf
         if intent_name == "consulta.paciente":
-            cpf = validacao_cpf(entrada['cpf'])
+            cpf = validacao_do_cpf(entrada['cpf'])
             query = Cliente.objects.filter(cpf=cpf)
             if query.count() > 0:
                 cliente = query[0]
 
                 r = Response(
-                    dates2(cliente.nome+ "\n" + cliente.cpf),)
+                    dates2("Olá, " + cliente.nome + ".\nVamos agendar? "),)
                 r.content_type = 'application/json; charset=UTF-8'
-                print(r.content_type)
                 return r
-        elif intent_name == "consulta.paciente - yes":
-            return Response("ok",)
+        if intent_name == "consulta.paciente - yes":
+            print("entrei")
+            r = Response(
+                dates2("Qual a especialidade você deseja agendar a consulta ?"))
+            r.content_type = 'application/json; charset=UTF-8'
+            return r
 
         date2 = dates2("intent diferente")
 
