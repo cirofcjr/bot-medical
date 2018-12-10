@@ -39,7 +39,7 @@ def webhook(request):
                 # }
                 {
                     "text": {
-                        "text": [value]
+                        "text": [value] + "\nVamos agendar? "
                     },
 
 
@@ -50,6 +50,16 @@ def webhook(request):
         # date2 = {"fulfillmentText": value + "\n\n teste" + "/n/n teste"}
 
         return date2
+    def consulta_paciente(self, cpf):
+        cpf = validacao_cpf(entrada['cpf'])
+        query = Cliente.objects.filter(cpf=cpf)
+        if query.count() > 0:
+            cliente = query[0]
+        r = Response(
+            dates2(cliente.nome+ "\n" + cliente.cpf),)
+        r.content_type = 'application/json; charset=UTF-8'
+        print(r.content_type)
+        return r
 
     if request.method == 'POST':
         # converte os dados recebidos do body em formato json
@@ -73,6 +83,8 @@ def webhook(request):
                 r.content_type = 'application/json; charset=UTF-8'
                 print(r.content_type)
                 return r
+        elif intent_name == "consulta.paciente - yes":
+            return Response("ok",)
 
         date2 = dates2("intent diferente")
 
