@@ -23,41 +23,59 @@ def webhook(request):
         date2 = {
             "fulfillmentMessages": [
                 {
-                    "text": {
-                        "text": [value]
-                    },
-
+                    
+                        "card": {
+                            "title": "card title",
+                            "subtitle": "card text",
+                            "imageUri": "https://assistant.google.com/static/images/molecule/Molecule-Formation-stop.png",
+                            "buttons": [
+                                {
+                                    "text": "button text",
+                                    "postback": "https://assistant.google.com/"
+                                }
+                            ]
+                        }
+                    
                 }
+                # {
+                #     "text": {
+                #         "text": [value]
+                #     },
+
+
+                # }
             ]
 
-
         }
+        # date2 = {"fulfillmentText": value + "\n\n teste" + "/n/n teste"}
+
         return date2
 
     if request.method == 'POST':
         # converte os dados recebidos do body em formato json
         json_data = json.loads(str(request.body, encoding='utf-8'))
 
-        #intent
+        # intent
         intent_name = json_data['queryResult']['intent']['displayName']
 
-
         # esses são os parametros que solicitei do usuario
-        print(intent_name)
         entrada = json_data['queryResult']['parameters']
-        # consulta o banco de dados e verifica se existe alguem com o cpf digitado e se houver 
+        # consulta o banco de dados e verifica se existe alguem com o cpf digitado e se houver
         # ele retorna nome e cpf
         if intent_name == "consulta.paciente":
             query = Cliente.objects.filter(cpf=entrada['cpf'])
             if query.count() > 0:
                 cliente = query[0]
-                r=  Response(dates2(cliente.nome + " " + cliente.cpf))
-                print(r)
-                return Response(dates2(cliente.nome + " " + cliente.cpf + r.content))
-            
-        
+
+                r = Response(
+                    dates2("João de Arêa Leão" + "\n\n" + cliente.cpf),)
+                r.content_type = 'application/json; charset=UTF-8'
+                # r._headers['content-type'] = 'application/json;charset=UTF-8'
+                print(r.content_type)
+                return r
+
         date2 = dates2("intent diferente")
-       
+
         return Response(date2)
     return Response(date2)
 
