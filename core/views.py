@@ -85,6 +85,17 @@ def webhook(request):
                     dates2("Olá, " + cliente.nome + ".\nVamos agendar? "),)
                 r.content_type = 'application/json; charset=UTF-8'
                 return r
+            else:
+                r = Response(
+                    {
+                        "followupEventInput": {
+                            "name": "usuario_nao_cadastrado"
+                        }
+                    }
+                )
+                r.content_type = 'application/json; charset=UTF-8'
+                return r
+
         if intent_name == "consulta.paciente - yes":
             print("entrei")
             r = Response(
@@ -201,6 +212,7 @@ class especialidade_data(generics.ListCreateAPIView):
         hoje = datetime.date.today()
         medico = DiaAgenda.objects.filter(data__gte=hoje, medico__especialidade__pk=pk, turno__tempo__disponivel=True).values(
             'data', 'turno__tempo__inicio', 'medico__nome', 'medico__pk').distinct()
+        print(medico)
         return medico
 
 
