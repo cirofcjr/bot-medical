@@ -2,7 +2,7 @@ aiohttp==3.4.4
 alabaster==0.7.12
 async-timeout==3.0.1
 attrs==18.2.0
-Babel==2.6.0
+Babel==2.9.1
 certifi==2018.8.24
 chardet==3.0.4
 ChatterBot==0.8.7
